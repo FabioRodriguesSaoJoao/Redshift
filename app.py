@@ -31,12 +31,15 @@ def listar_dados_cashless_facts(connection, id_client, date_order_inicial, date_
         cursor = connection.cursor()
         
         # Execute uma consulta SQL para selecionar todos os dados da tabela        
-        query = "SELECT id_client,des_good_name, qtd_items, vlr_price, des_status FROM trusted_vmpay.tb_cashless_facts where id_client = %s and dat_order BETWEEN %s AND %s;"
+        # query = "SELECT id_client,des_good_name, qtd_items, vlr_price, des_status FROM trusted_vmpay.tb_cashless_facts where id_client = %s and dat_order BETWEEN %s AND %s;"
+
+        query = "SELECT id_client,des_good_name, qtd_items, vlr_price, des_status, cod_machine_asset_number FROM trusted_vmpay.tb_cashless_facts where id_client = %s and dat_order BETWEEN %s AND %s;"
         cursor.execute(query, (id_client, date_order_inicial, date_order_final))
         # Obtenha todos os resultados
         records = cursor.fetchall()
         # Converta os resultados em uma lista de dicionários
         produtos = []
+        # print(records)  
         for record in records:
             produto = {
                 'id': record[0],
@@ -44,9 +47,10 @@ def listar_dados_cashless_facts(connection, id_client, date_order_inicial, date_
                 'quantidade': record[2],
                 'valor': float(record[3]), 
                 'status': record[4],
+                'maquina': record[5],
             }
             produtos.append(produto)
-        
+        # print(produtos)
         return produtos
     except Error as e:
         raise HTTPException(status_code=500, detail=f"Erro ao listar dados da tabela: {e}")
@@ -59,6 +63,7 @@ def listar_dados(id_client: str, date_order_inicial: str, date_order_final: str)
         try:
             # Liste os dados da tabela
             dados = listar_dados_cashless_facts(connection, id_client, date_order_inicial, date_order_final)
+            print(dados)
             return dados
         finally:
             # Feche a conexão após obter os dados
